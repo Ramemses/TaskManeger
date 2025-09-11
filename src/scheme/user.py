@@ -1,5 +1,4 @@
-from pydantic import BaseModel, EmailStr,  ConfigDict
-from datetime import datetime
+from pydantic import BaseModel, EmailStr, ConfigDict
 from typing import Optional
 
 
@@ -11,22 +10,22 @@ class UserBase(BaseModel):
 
 
 class CreateUser(UserBase):
-
-    is_active:bool
+    is_active: bool
     password: bytes
 
-class UserRegister(UserBase):
+
+class RegistrationUser(UserBase):
     password1: str
     password2: str
-    
+
 
 class UserUpdate(BaseModel):
     username: Optional[str] = None
-    emial: Optional[EmailStr] = None
-    password: Optional[str] = None
+    email: Optional[EmailStr] = None
+    password: Optional[bytes] = None
 
 
-class UserInDB(UserBase):
+class UserResponse(UserBase):
     id: int
     is_active: bool
     is_superuser: bool
@@ -35,18 +34,10 @@ class UserInDB(UserBase):
         from_attributes = True
 
 
-class UserToken(UserBase):
-    is_active: bool
+class UserInDB(UserResponse):
+    hashed_password: bytes
 
     class Config:
         from_attributes = True
 
 
-class UserResponse(UserBase):
-    id: int
-    is_active: bool
-    created_at: datetime
-
-
-    class Config:
-        from_attributes = True

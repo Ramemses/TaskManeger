@@ -12,24 +12,25 @@ def create_jwt(
         private_key: Path=settings.auth_jwt.private_key,
         algorithm: Path=settings.auth_jwt.algorithm,
         expire_minutes: int=settings.auth_jwt.access_token_expire_minutes,
-        expire_timedelta: int | None = None):
+        expire_timedelta_days: timedelta | None = None
+        ):
 
     to_encode = payload.copy()
     expire = None
 
 
-    now = datetime.now()
-    if expire_timedelta:
-        expire = now + expire_timedelta
+    now = datetime.utcnow()
+    if expire_timedelta_days:
+        expire = now + expire_timedelta_days
     else:
         expire = now + timedelta(minutes=expire_minutes)
-    
-    to_encode.update({"iat": now})
+
+
     to_encode.update({"exp": expire})
+    to_encode.update({"iat": now})
     
 
-
-    encoded = jwt.encode(payload=payload, key=private_key, algorithm=algorithm)
+    encoded = jwt.encode(payload=to_encode, key=private_key, algorithm=algorithm)
 
 
 
@@ -40,9 +41,11 @@ def create_jwt(
 def decode_jwt(
         token: str | bytes,
         public_key: str=settings.auth_jwt.public_key,
-        algorithm: str=settings.auth_jwt.algorithm):
+        algorithm: str=settings.auth_jwt.algorithm
+        ):
 
     decoded = jwt.decode(token, key=public_key, algorithms=[algorithm])
+    
 
     return decoded
 

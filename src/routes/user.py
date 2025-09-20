@@ -1,13 +1,16 @@
 from fastapi import APIRouter, Depends
 from fastapi.exceptions import HTTPException
 from fastapi.security import HTTPAuthorizationCredentials
-from typing import Annotated
+
 from src.routes.auth import oauth_sheme, http_bearer
 from src.core import security as auth_security
 from src.scheme import TokenInfo, UserResponse
 from src.repositories.user import UserServices, get_user_service
 
 from jwt import InvalidTokenError
+from datetime import datetime, timedelta
+from typing import Annotated
+
 
 
 router = APIRouter(tags=["users"], prefix='/users')
@@ -25,14 +28,26 @@ router = APIRouter(tags=["users"], prefix='/users')
 
 def get_payload(creds: Annotated[HTTPAuthorizationCredentials , Depends(http_bearer)]) -> dict:
     token = creds.credentials
-
     try:
         payload  = auth_security.decode_jwt(token=token)
     except InvalidTokenError as e:
         raise HTTPException(status_code=401, detail=f"invalid token error {e}")
+        
+    
 
     return payload
 
+
+# def validate_access_token_expire(payload: dict = Depends(get_payload)):
+    
+#     print("Sex 2")
+#     if "exp" in payload:
+#         current_timestamp = datetime.utcnow().timestamp()
+#         if payload["exp"] < current_timestamp:
+#             raise HTTPException(status_code=401, detail="Invalid token (access token expire is limited)")
+#     else:
+#         raise HTTPException(status_code=401, detail="Invalid token (token has no expire)")   
+    # return payload
 
 def get_authed_user(payload: dict = Depends(get_payload),
     user_services: UserServices=Depends(get_user_service)) -> UserResponse:

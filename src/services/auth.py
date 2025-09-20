@@ -19,8 +19,8 @@ def create_access_token(user: UserResponse):
     
     payload = {
         "sub": str(user.id),
-        "is_active": user.is_active,
-        "is_superuser": user.is_superuser,
+        "isa": user.is_active,
+        "iss": user.is_superuser,
         TOKEN_TYPE_FIELD: ACCESS_TOKEN_TYPE,
     }
 
@@ -37,3 +37,9 @@ def create_refresh_token(user: UserResponse):
             payload=payload,    
             resfresh_token_expire_days=timedelta(days=settings.auth_jwt.refresh_token_expire_days),   
         )
+
+
+def reload_access_token():
+    pass
+
+
